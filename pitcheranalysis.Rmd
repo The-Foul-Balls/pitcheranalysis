@@ -1,0 +1,55 @@
+---
+title: "pitcheranalysis"
+output: html_document
+date: "2024-09-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+
+```
+
+```{r}
+# Linking Scores to Datasets
+# 2021 Season
+gamescore21 <- read.csv("data/gamescore_by_gameid_ab/gameid_ab_score_21.csv")
+pitches21 <- read.csv("data/pitches_21.csv")
+pitchwithscore21 <- left_join(pitches21,gamescore21, join_by(gameid,ab)) # joining score to pitches21
+
+# 2022 Season
+gamescore22 <- read.csv("data/gamescore_by_gameid_ab/gameid_ab_score_22.csv")
+pitches22 <- read.csv("data/pitches_22.csv")
+pitchwithscore22 <- left_join(pitches22,gamescore22, join_by(gameid,ab)) # joining score to pitches21
+
+# 2023 Season
+gamescore23 <- read.csv("data/gamescore_by_gameid_ab/gameid_ab_score_23.csv")
+pitches23 <- read.csv("data/pitches_23.csv")
+pitchwithscore23 <- left_join(pitches23,gamescore23, join_by(gameid,ab)) # joining score to pitches21
+
+```
+
+```{r}
+write_csv(pitchwithscore21, "data/pitchesWithScore21.csv")
+write_csv(pitchwithscore22, "data/pitchesWithScore22.csv")
+write_csv(pitchwithscore23, "data/pitchesWithScore23.csv")
+```
+
+```{r}
+pitchwithscore21$closeness <- abs(pitchwithscore21$homscore - pitchwithscore21$visscore)
+
+#filtering by closeness and whether the pitcher is closing
+datawscore21<- filter(pitchwithscore21, closeness<=3, inning>=8)
+View(datawscore21)
+
+#examining espn's top closers
+
+espnbest21 <- c("Melancon, Mark", "Hendriks, Liam", "Jansen, Kenley", "Smith, Will", "Iglesias, Raisel", "Hader, Josh", "Diaz, Edwin", "McGee, Jake", "Chapman, Aroldis", "Reyes, Alex", "Pressly, Ryan", "Clase, Emmanuel", "Barnes, Matt", "Romano, Jordan", "Kimbrel, Craig", "Trivino, Lou", "Hand, Brad", "Bard, Daniel", "Soto, Gregory","Colome, Alex", "Barlow, Scott", "Kennedy, Ian", "Floro, Dylan", "Steckenrider, Drew", "Rodriguez, Richard", "Castillo, Diego", "Neris, Hector", "Sulser, Cole", "Hembree, Heath", "Soria, Joakim")
+#above from https://www.espn.com/mlb/stats/closers/_/year/2021
+
+espnsbestclosers21<- filter(pitchwithscore21, closeness<=3, inning>=8, pitcher==espnbest21)
+View(espnsbestclosers21)
+```
