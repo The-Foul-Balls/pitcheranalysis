@@ -1,0 +1,108 @@
+---
+title: "pitcheranalysis"
+output: html_document
+date: "2024-09-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+
+```
+
+```{r}
+# Linking Scores to Datasets
+# 2021 Season
+gamescore21 <- read.csv("data/gamescore_by_gameid_ab/gameid_ab_score_21.csv")
+pitches21 <- read.csv("data/pitches_21.csv")
+pitchwithscore21 <- left_join(pitches21,gamescore21, join_by(gameid,ab)) # joining score to pitches21
+
+# 2022 Season
+gamescore22 <- read.csv("data/gamescore_by_gameid_ab/gameid_ab_score_22.csv")
+pitches22 <- read.csv("data/pitches_22.csv")
+pitchwithscore22 <- left_join(pitches22,gamescore22, join_by(gameid,ab)) # joining score to pitches21
+
+# 2023 Season
+gamescore23 <- read.csv("data/gamescore_by_gameid_ab/gameid_ab_score_23.csv")
+pitches23 <- read.csv("data/pitches_23.csv")
+pitchwithscore23 <- left_join(pitches23,gamescore23, join_by(gameid,ab)) # joining score to pitches21
+
+write_csv(pitchwithscore21, "data/pitchesWithScore21.csv")
+write_csv(pitchwithscore22, "data/pitchesWithScore22.csv")
+write_csv(pitchwithscore23, "data/pitchesWithScore23.csv")
+
+
+```
+
+```{r}
+#2021 season 
+pitchwithscore21$closeness <- abs(pitchwithscore21$homscore - pitchwithscore21$visscore)
+
+#filtering by closeness and whether the pitcher is closing
+datawscore21<- filter(pitchwithscore21, closeness<=3, inning>=8)
+View(datawscore21)
+
+#examining espn's top closers
+espnbest21 <- c("Melancon, Mark", "Hendriks, Liam", "Jansen, Kenley", "Smith, Will", "Iglesias, Raisel", "Hader, Josh", "Diaz, Edwin", "McGee, Jake", "Chapman, Aroldis", "Reyes, Alex", "Pressly, Ryan", "Clase, Emmanuel", "Barnes, Matt", "Romano, Jordan", "Kimbrel, Craig", "Trivino, Lou", "Hand, Brad", "Bard, Daniel", "Soto, Gregory","Colome, Alex", "Barlow, Scott", "Kennedy, Ian", "Floro, Dylan", "Steckenrider, Drew", "Rodriguez, Richard", "Castillo, Diego", "Neris, Hector", "Sulser, Cole", "Hembree, Heath", "Soria, Joakim")
+#above from https://www.espn.com/mlb/stats/closers/_/year/2021
+
+espnsbestclosers21<- filter(pitchwithscore21, closeness<=3, inning>=8, pitcher %in% espnbest21)
+
+View(espnsbestclosers21)
+```
+
+```{r}
+#2022 season
+pitchwithscore22$closeness <- abs(pitchwithscore22$homscore - pitchwithscore22$visscore)
+
+#filtering by closeness and whether the pitcher is closing
+datawscore22<- filter(pitchwithscore22, closeness<=3, inning>=8)
+View(datawscore22)
+
+#examining espn's top closers
+
+espnbest22 <- c("Clase, Emmanuel", "Jansen, Kenley", "Hendriks, Liam", "Romano, Jordan", "Bard, Daniel", "Pressly, Ryan", "Diaz, Edwin", "Soto, Gregory", "Hader, Josh", "Rogers, Taylor", "Doval, Camilo", "Barlow, Scott", "Kimbrel, Craig", "Sewald, Paul", "Holmes, Clay", "Scott, Tanner", "Helsley, Ryan", "Bednar, David", "Lopez, Jorge", "Melancon, Mark", "Iglesias, Raisel", "Robertson, David", "Barlow, Joe", "Knebel, Corey", "Rainey, Tanner", "Jimenez, Dany", "Diaz, Alexis", "Pagan, Emilio", "Schreiber, John", "Adam, Jason")
+
+espnsbestclosers22<- filter(pitchwithscore22, closeness<=3, inning>=8, pitcher %in% espnbest22)
+View(espnsbestclosers22)
+```
+
+```{r}
+# 2023 season
+pitchwithscore23$closeness <- abs(pitchwithscore23$homscore - pitchwithscore23$visscore)
+
+#filtering by closeness and whether the pitcher is closing
+datawscore23<- filter(pitchwithscore23, closeness<=3, inning>=8)
+View(datawscore23)
+
+#examining espn's top closers
+
+espnbest23 <- c("Clase, Emmanuel", "Bednar, David", "Doval, Camilo", "Diaz, Alexis", "Romano, Jordan", "Williams, Devin", "Bautista, Felix", "Hader, Josh", "Iglesias, Raisel", "Pressly, Ryan", "Estevez, Carlos", "Jansen, Kenley", "Finnegan, Kyle", "Duran, Jhoan", "Lange, Alex", "Fairbanks, Pete", "Holmes, Clay", "Phillips, Evan", "Kimbrel, Craig", "Alzolay, Adbert", "Smith, Will", "May, Trevor", "Sewald, Paul", "Puk, A.J.", "Robertson, David", "Helsley, Ryan", "Johnson, Pierce", "Barlow, Scott", "Sewald, Paul", "Graveman, Kendall")
+
+espnsbestclosers23<- filter(pitchwithscore23, closeness<=3, inning>=8, pitcher %in% espnbest23)
+
+View(espnsbestclosers23)
+```
+
+```{r}
+data<- rbind(espnsbestclosers21, espnsbestclosers22, espnsbestclosers23)
+View(data)
+```
+
+
+```{r}
+# vector of all closing pitchers (not used right now)
+every_closer <- unique(c(espnbest21, espnbest22, espnbest23)) 
+
+pitcherName <- paste0(data$pitcher, " table")
+
+#closer_tables is a list of tables
+closer_tables <- split(data,pitcherName)
+
+closer_tables$`Chapman, Aroldis table`
+```
+
+
