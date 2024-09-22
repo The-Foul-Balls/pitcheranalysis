@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
+par(pin = c(12, 8))
 
 ```
 
@@ -38,9 +39,9 @@ if (!file.exists("data/pitchesWithScore21.csv") && !file.exists("data/pitchesWit
 
 ```
 
-```{r}
+## Closer EDA
 
-```
+#### Build Closer Datasets Per Year
 
 ```{r}
 # Closers | 2021 season 
@@ -84,9 +85,73 @@ espnbest23 <- c("Clase, Emmanuel", "Bednar, David", "Doval, Camilo", "Diaz, Alex
 espnsbestclosers23<- filter(pitchwithscore23, closeness<=3, inning>=8, pitcher %in% espnbest23)
 ```
 
+#### Combined Dataset
+
 ```{r}
-data<- rbind(espnsbestclosers21, espnsbestclosers22, espnsbestclosers23)
+all_closer_data<- rbind(espnsbestclosers21, espnsbestclosers22, espnsbestclosers23) %>% select(-X)
 ```
+
+### Closer Pitch Type Frequency
+
+```{r}
+# ALL CLOSER DATA: Get each pitch type, plot frequencies, boxplot for pitching stats
+all_closer_pitchtypes <- unique(all_closer_data$pitchname)
+all_closer_pitchdesc <- unique(all_closer_data$pitchname_desc)
+print(all_closer_pitchtypes)
+print(all_closer_pitchdesc)
+
+ggplot(data=all_closer_data, mapping = aes(x = pitchname))  +
+  geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Pitch Type Frequency for Closers from 2021-2023")
+
+# Four-seam FB
+all_closer_ff <- filter(all_closer_data, pitchname=="FF")
+boxplot(scale(select(all_closer_ff, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Fastball Pitching Stats Boxplots")
+# Sinker
+all_closer_si <- filter(all_closer_data, pitchname=="SI")
+boxplot(scale(select(all_closer_si, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Sinker Pitching Stats Boxplots")
+
+# Slider
+all_closer_sl <- filter(all_closer_data, pitchname=="SL")
+boxplot(scale(select(all_closer_sl, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Slider Pitching Stats Boxplots")
+
+# Curveball
+all_closer_cu <- filter(all_closer_data, pitchname=="CU")
+boxplot(scale(select(all_closer_cu, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Curveball Pitching Stats Boxplots")
+
+# Changeup
+all_closer_ch <- filter(all_closer_data, pitchname=="CH")
+boxplot(scale(select(all_closer_ch, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Changeup Pitching Stats Boxplots")
+
+# Cutter
+all_closer_fc <- filter(all_closer_data, pitchname=="FC")
+boxplot(scale(select(all_closer_fc, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Cutter Pitching Stats Boxplots")
+
+# Splitter
+all_closer_fs <- filter(all_closer_data, pitchname=="FS")
+boxplot(scale(select(all_closer_fs, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Splitter Pitching Stats Boxplots")
+
+# Knuckle Curve
+all_closer_kc <- filter(all_closer_data, pitchname=="KC")
+boxplot(scale(select(all_closer_kc, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Knuckle Curve Pitching Stats Boxplots")
+
+# Sweeper
+all_closer_st <- filter(all_closer_data, pitchname=="ST")
+boxplot(scale(select(all_closer_st, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Sweeper Pitching Stats Boxplots")
+
+
+
+```
+
+## Reliever EDA
 
 ```{r}
 # Group each individual game together (by game id or game date)
