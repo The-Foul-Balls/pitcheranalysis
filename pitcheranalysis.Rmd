@@ -105,4 +105,38 @@ closer_tables <- split(data,pitcherName)
 closer_tables$`Chapman, Aroldis table`
 ```
 
+```{r}
+total_counts <- data %>%
+  group_by(balls, strikes) %>%
+  summarise(total = n(), .groups = "drop")
 
+# Aggregate the data by pitch type, ball, and strike count
+aggregated_data <- data %>%
+  group_by(pitchname_desc, balls, strikes) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts, by = c("balls", "strikes")) %>%  # Join to get total counts
+  mutate(proportion = count / total)  # Calculate proportion
+
+pitch_types <- unique(aggregated_data$pitchname_desc)
+
+for (pitch_type in pitch_types) {
+  # Create the plot for the current pitch type
+  plot <- ggplot(aggregated_data %>% filter(pitchname_desc == pitch_type), 
+                 aes(x = balls, y = strikes, fill = proportion)) +
+    geom_tile() +
+    scale_fill_gradient(low = "white", high = "red") +
+    labs(
+      title = paste0("Heatmap of ", pitch_type, " by Ball and Strike Count (Proportions)"),
+      x = "Ball Count",
+      y = "Strike Count",
+      fill = "Proportion"
+    ) +
+    theme_minimal()
+
+  # Display the plot (optional)
+  print(plot)
+}
+
+## ok so this is done with proportions of total pitches for a certain pitch type but idk if this is the best way to go about it
+
+```
