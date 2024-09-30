@@ -193,3 +193,75 @@ reliever_2023 <- pitchwithscore23 %>%
    filter(!(pitcher %in% espnbest23))
   
 ```
+
+```{r}
+#location of pitches groups by pitch type
+ggplot(datawscore21, aes(x=platelocside, y= platelocheight)) + geom_point(alpha = 0.1)+ 
+  facet_grid(pitchname~.)
+
+#examining if the location of pitches is dependent on handedness of pitcher
+ggplot(datawscore21, aes(x=platelocside, y= platelocheight)) + geom_point(alpha = 0.1)+ 
+  facet_grid(pitchname~pitcherthrows)
+
+#are any ambidextrous? no
+sum(datawscore21$pitcherthrows=="R")
+sum(datawscore21$pitcherthrows=="L")
+sum(datawscore21$pitcherthrows=="R" & datawscore21$pitcherthrows=="L")
+
+sum(datawscore21$batterside=="R")
+sum(datawscore21$batterside=="L")
+sum(datawscore21$batterside=="R" & datawscore21$batterside=="L")
+
+#finding the frequency of each pitch type and their result
+datawscore21_count <- datawscore21 %>%
+  group_by(pitchname, pitchresult, pitcherthrows, batterside) %>%
+  summarize(count = n())  # Calculate the frequency of each combination
+
+ggplot(datawscore21_count, aes(x = pitchname, y = pitchresult, size = count)) +
+  geom_point(alpha = 0.6) +  
+  scale_size_continuous(range = c(1, 10))
+
+ggplot(datawscore21_count, aes(x=pitchname, y= pitchresult, size =count)) + geom_point(alpha = 0.3)+
+    scale_size(range = c(.1, 24)) #overall
+
+ggplot(datawscore21_count, aes(x=pitchname, y= pitchresult, size =count)) +
+  geom_point(alpha = 0.3)+
+  scale_size(range = c(.1, 24))+ 
+  facet_grid(pitcherthrows~batterside) #impact of handedness
+
+
+```
+
+```{r}
+total_counts <- data %>%
+  group_by(balls, strikes) %>%
+  summarise(total = n(), .groups = "drop")
+
+# Aggregate the data by pitch type, ball, and strike count
+aggregated_data <- data %>%
+  group_by(pitchname_desc, balls, strikes) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts, by = c("balls", "strikes")) %>%  # Join to get total counts
+  mutate(proportion = count / total)  # Calculate proportion
+
+pitch_types <- unique(aggregated_data$pitchname_desc)
+
+for (pitch_type in pitch_types) {
+  # Create the plot for the current pitch type
+  plot <- ggplot(aggregated_data %>% filter(pitchname_desc == pitch_type), 
+                 aes(x = balls, y = strikes, fill = proportion)) +
+    geom_tile() +
+    scale_fill_gradient(low = "white", high = "red") +
+    labs(
+      title = paste0("Heatmap of ", pitch_type, " by Ball and Strike Count (Proportions)"),
+      x = "Ball Count",
+      y = "Strike Count",
+      fill = "Proportion"
+    ) +
+    theme_minimal()
+
+  # Display the plot (optional)
+  print(plot)
+}
+```
+
