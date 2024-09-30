@@ -16,6 +16,7 @@ library(tidyverse)
 ```{r}
 # Linking Scores to Datasets
 # 2021 Season
+<<<<<<< Updated upstream
 gamescore21 <- read.csv("data/gamescore_by_gameid_ab/gameid_ab_score_21.csv")
 pitches21 <- read.csv("data/pitches_21.csv")
 pitchwithscore21 <- left_join(pitches21,gamescore21, join_by(gameid,ab)) # joining score to pitches21
@@ -33,6 +34,25 @@ pitchwithscore23 <- left_join(pitches23,gamescore23, join_by(gameid,ab)) # joini
 write_csv(pitchwithscore21, "data/pitchesWithScore21.csv")
 write_csv(pitchwithscore22, "data/pitchesWithScore22.csv")
 write_csv(pitchwithscore23, "data/pitchesWithScore23.csv")
+=======
+gamescore21 <- read.csv("C:/Users/kyalc/Downloads/pitcheranalysis/pitcheranalysis/data/gamescore_by_gameid_ab/gameid_ab_score_21.csv")
+pitches21 <- read.csv("C:/Users/kyalc/Downloads/pitcheranalysis/pitcheranalysis/data/pitches_21.csv")
+pitchwithscore21 <- left_join(pitches21,gamescore21, join_by(gameid,ab)) # joining score to pitches21
+
+# 2022 Season
+gamescore22 <- read.csv("C:/Users/kyalc/Downloads/pitcheranalysis/pitcheranalysis/data/gamescore_by_gameid_ab/gameid_ab_score_22.csv")
+pitches22 <- read.csv("C:/Users/kyalc/Downloads/pitcheranalysis/pitcheranalysis/data/pitches_22.csv")
+pitchwithscore22 <- left_join(pitches22,gamescore22, join_by(gameid,ab)) # joining score to pitches21
+
+# 2023 Season
+gamescore23 <- read.csv("C:/Users/kyalc/Downloads/pitcheranalysis/pitcheranalysis/data/gamescore_by_gameid_ab/gameid_ab_score_23.csv")
+pitches23 <- read.csv("C:/Users/kyalc/Downloads/pitcheranalysis/pitcheranalysis/data/pitches_23.csv")
+pitchwithscore23 <- left_join(pitches23,gamescore23, join_by(gameid,ab)) # joining score to pitches21
+
+write_csv(pitchwithscore21, "C:/Users/kyalc/Downloads/pitcheranalysis/pitcheranalysis/data/pitchesWithScore21.csv")
+write_csv(pitchwithscore22, "C:/Users/kyalc/Downloads/pitcheranalysis/pitcheranalysis/data/pitchesWithScore22.csv")
+write_csv(pitchwithscore23, "C:/Users/kyalc/Downloads/pitcheranalysis/pitcheranalysis/data/pitchesWithScore23.csv")
+>>>>>>> Stashed changes
 
 
 ```
