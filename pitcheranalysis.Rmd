@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
+library(ggplot2)
 par(pin = c(12, 8))
 ```
 
@@ -141,9 +142,7 @@ closer_tables <- split(all_closer_data,pitcherName)
 avg_by_pitcher <- data.frame(matrix(ncol=8,nrow=0, dimnames=list(NULL, c("name", "pitch", "avg_spin", "avg_velo", "avg_hbreak", "avg_vbreak", "avg_plside", "avg_plheight"))))
 
 for (i in closer_tables) {
-  pitchtypes <- unique(i$pitchname)
-  pitchdesc <- unique(i$pitchname_desc)
-  table_by_pitch <- split(i, pitchtypes)
+  table_by_pitch <- split(i, i$pitchname)
   for (j in table_by_pitch) {
     avg_spin <- j$spinrate
     avg_velo <- j$relspeed
@@ -163,38 +162,57 @@ print(avg_by_pitcher)
 ```
 
 ```{r}
-ind_closer_mean_ff <- filter(avg_by_pitcher, pitch=="FF")
-boxplot(scale(select(ind_closer_mean_ff, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
-title("Fastball Pitching Stats Boxplots")
-# Sinker
-ind_closer_mean_si <- filter(avg_by_pitcher, pitch=="SI")
-boxplot(scale(select(ind_closer_mean_si, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
-title("Sinker Pitching Stats Boxplots")
-# Slider
-ind_closer_mean_sl <- filter(avg_by_pitcher, pitch=="SL")
-boxplot(scale(select(ind_closer_mean_sl, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
-title("Slider Pitching Stats Boxplots")
-# Curveball
-ind_closer_mean_cu <- filter(avg_by_pitcher, pitch=="CU")
-boxplot(scale(select(ind_closer_mean_cu, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
-title("Curveball Pitching Stats Boxplots")
-# Changeup
-ind_closer_mean_ch <- filter(avg_by_pitcher, pitch=="CH")
-boxplot(scale(select(ind_closer_mean_ch, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
-title("Changeup Pitching Stats Boxplots")
-# Cutter
-ind_closer_mean_fc <- filter(avg_by_pitcher, pitch=="FC")
-boxplot(scale(select(ind_closer_mean_fc, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
-title("Cutter Pitching Stats Boxplots")
-# Splitter
-ind_closer_mean_fs <- filter(avg_by_pitcher, pitch=="FS")
-boxplot(scale(select(ind_closer_mean_fs, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
-title("Splitter Pitching Stats Boxplots")
-# Knuckle Curve
-ind_closer_mean_kc <- filter(avg_by_pitcher, pitch=="KC")
-boxplot(scale(select(ind_closer_mean_kc, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
-title("Knuckle Curve Pitching Stats Boxplots")
-# Sweeper has only 1 pitcher who throws it, outlier on its own
+find_outlier <- function(x) {
+  return(x < quantile(x, .25) - 1.5*IQR(x) | x > quantile(x, .75) + 1.5*IQR(x))
+}
+avg_by_pitcher <- avg_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(avg_spin), name, NA))
+ggplot(avg_by_pitcher, aes(x=pitch, y=avg_spin)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Spin Rates by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+
+avg_by_pitcher <- avg_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(avg_velo), name, NA))
+ggplot(avg_by_pitcher, aes(x=pitch, y=avg_velo)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Velocity by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+
+avg_by_pitcher <- avg_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(avg_hbreak), name, NA))
+ggplot(avg_by_pitcher, aes(x=pitch, y=avg_hbreak)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Horizontal Break by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+
+avg_by_pitcher <- avg_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(avg_vbreak), name, NA))
+ggplot(avg_by_pitcher, aes(x=pitch, y=avg_vbreak)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Vertical Break by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+
+avg_by_pitcher <- avg_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(avg_plside), name, NA))
+ggplot(avg_by_pitcher, aes(x=pitch, y=avg_plside)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Vertical Location by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+
+avg_by_pitcher <- avg_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(avg_plheight), name, NA))
+ggplot(avg_by_pitcher, aes(x=pitch, y=avg_plheight)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Height by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+
 ```
 
 
