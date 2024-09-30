@@ -1,9 +1,4 @@
-@@ -0,0 +1,205 @@
----
-title: "pitcheranalysis"
-output: html_document
-date: "2024-09-10"
----
+\@\@ -0,0 +1,205 \@\@ 31b8e172-b470-440e-83d8-e6b185028602:dAB5AHAAZQA6AFoAUQBBAHgAQQBEAGcAQQBNAFEAQQA1AEEARABZAEEATQBBAEEAMQBBAEMAMABBAE0AQQBCAGgAQQBHAE0AQQBaAEEAQQB0AEEARABRAEEAWgBnAEIAaABBAEcAVQBBAEwAUQBBADQAQQBHAEkAQQBPAFEAQQA1AEEAQwAwAEEATwBRAEIAagBBAEQARQBBAFkAZwBBADMAQQBHAEkAQQBaAEEAQQAzAEEARwBNAEEATQBBAEIAbQBBAEQARQBBAAoAcABvAHMAaQB0AGkAbwBuADoATQBRAEEANABBAEEAPQA9AAoAcAByAGUAZgBpAHgAOgAKAHMAbwB1AHIAYwBlADoATABRAEEAdABBAEMAMABBAEMAZwBCADAAQQBHAGsAQQBkAEEAQgBzAEEARwBVAEEATwBnAEEAZwBBAEMASQBBAGMAQQBCAHAAQQBIAFEAQQBZAHcAQgBvAEEARwBVAEEAYwBnAEIAaABBAEcANABBAFkAUQBCAHMAQQBIAGsAQQBjAHcAQgBwAEEASABNAEEASQBnAEEASwBBAEcAOABBAGQAUQBCADAAQQBIAEEAQQBkAFEAQgAwAEEARABvAEEASQBBAEIAbwBBAEgAUQBBAGIAUQBCAHMAQQBGADgAQQBaAEEAQgB2AEEARwBNAEEAZABRAEIAdABBAEcAVQBBAGIAZwBCADAAQQBBAG8AQQBaAEEAQgBoAEEASABRAEEAWgBRAEEANgBBAEMAQQBBAEkAZwBBAHkAQQBEAEEAQQBNAGcAQQAwAEEAQwAwAEEATQBBAEEANQBBAEMAMABBAE0AUQBBAHcAQQBDAEkAQQBDAGcAQQB0AEEAQwAwAEEATABRAEEAPQAKAHMAdQBmAGYAaQB4ADoA:31b8e172-b470-440e-83d8-e6b185028602
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -36,6 +31,10 @@ if (!file.exists("data/pitchesWithScore21.csv") && !file.exists("data/pitchesWit
   write_csv(pitchwithscore22, "data/pitchesWithScore22.csv")
   write_csv(pitchwithscore23, "data/pitchesWithScore23.csv")
 }
+pitchwithscore21 <- read.csv("data/pitchesWithScore21.csv")
+pitchwithscore22 <- read.csv("data/pitchesWithScore22.csv")
+pitchwithscore23 <- read.csv("data/pitchesWithScore23.csv")
+
 ```
 
 ## Closer EDA
@@ -233,12 +232,12 @@ ggplot(datawscore21_count, aes(x=pitchname, y= pitchresult, size =count)) +
 ```
 
 ```{r}
-total_counts <- data %>%
+total_counts <- all_closer_data %>%
   group_by(balls, strikes) %>%
   summarise(total = n(), .groups = "drop")
 
 # Aggregate the data by pitch type, ball, and strike count
-aggregated_data <- data %>%
+aggregated_data <- all_closer_data %>%
   group_by(pitchname_desc, balls, strikes) %>%
   summarise(count = n(), .groups = "drop") %>%
   left_join(total_counts, by = c("balls", "strikes")) %>%  # Join to get total counts
@@ -264,4 +263,3 @@ for (pitch_type in pitch_types) {
   print(plot)
 }
 ```
-
