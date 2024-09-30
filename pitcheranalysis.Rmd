@@ -138,15 +138,65 @@ pitcherName <- paste0(all_closer_data$pitcher, " table")
 #closer_tables is a list of tables
 closer_tables <- split(all_closer_data,pitcherName)
 
+avg_by_pitcher <- data.frame(matrix(ncol=8,nrow=0, dimnames=list(NULL, c("name", "pitch", "avg_spin", "avg_velo", "avg_hbreak", "avg_vbreak", "avg_plside", "avg_plheight"))))
+
 for (i in closer_tables) {
   pitchtypes <- unique(i$pitchname)
   pitchdesc <- unique(i$pitchname_desc)
+  table_by_pitch <- split(i, pitchtypes)
+  for (j in table_by_pitch) {
+    avg_spin <- j$spinrate
+    avg_velo <- j$relspeed
+    avg_hbreak <- j$horzbreak
+    avg_vbreak <- j$inducedvertbreak
+    avg_plside <- j$platelocside
+    avg_plheight <- j$platelocheight
+    avg_by_pitcher[nrow(avg_by_pitcher) + 1,] <- list(i[1,10], j[1,17], avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)
+  }
   title_name <- paste((i[1,10]), "Pitch Type Frequency", sep = " ")
   print(ggplot(data=i, mapping = aes(x = pitchname))  +
   geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle(title_name))
 }
 
+print(avg_by_pitcher)
+
 ```
+
+```{r}
+ind_closer_mean_ff <- filter(avg_by_pitcher, pitch=="FF")
+boxplot(scale(select(ind_closer_mean_ff, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Fastball Pitching Stats Boxplots")
+# Sinker
+ind_closer_mean_si <- filter(avg_by_pitcher, pitch=="SI")
+boxplot(scale(select(ind_closer_mean_si, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Sinker Pitching Stats Boxplots")
+# Slider
+ind_closer_mean_sl <- filter(avg_by_pitcher, pitch=="SL")
+boxplot(scale(select(ind_closer_mean_sl, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Slider Pitching Stats Boxplots")
+# Curveball
+ind_closer_mean_cu <- filter(avg_by_pitcher, pitch=="CU")
+boxplot(scale(select(ind_closer_mean_cu, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Curveball Pitching Stats Boxplots")
+# Changeup
+ind_closer_mean_ch <- filter(avg_by_pitcher, pitch=="CH")
+boxplot(scale(select(ind_closer_mean_ch, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Changeup Pitching Stats Boxplots")
+# Cutter
+ind_closer_mean_fc <- filter(avg_by_pitcher, pitch=="FC")
+boxplot(scale(select(ind_closer_mean_fc, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Cutter Pitching Stats Boxplots")
+# Splitter
+ind_closer_mean_fs <- filter(avg_by_pitcher, pitch=="FS")
+boxplot(scale(select(ind_closer_mean_fs, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Splitter Pitching Stats Boxplots")
+# Knuckle Curve
+ind_closer_mean_kc <- filter(avg_by_pitcher, pitch=="KC")
+boxplot(scale(select(ind_closer_mean_kc, avg_spin, avg_velo, avg_hbreak, avg_vbreak, avg_plside, avg_plheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Knuckle Curve Pitching Stats Boxplots")
+# Sweeper has only 1 pitcher who throws it, outlier on its own
+```
+
 
 ## Reliever EDA
 
