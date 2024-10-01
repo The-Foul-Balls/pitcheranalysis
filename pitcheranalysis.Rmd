@@ -84,13 +84,12 @@ all_closer_data<- rbind(espnsbestclosers21, espnsbestclosers22, espnsbestclosers
 # ALL CLOSER DATA: Get each pitch type, plot frequencies, boxplot for pitching stats
 all_closer_pitchtypes <- unique(all_closer_data$pitchname)
 all_closer_pitchdesc <- unique(all_closer_data$pitchname_desc)
-print(all_closer_pitchtypes)
-print(all_closer_pitchdesc)
-ggplot(data=all_closer_data, mapping = aes(x = pitchname))  +
+
+ggplot(data=all_closer_data, mapping = aes(x = pitchname, fill = pitchname))  +
   geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Pitch Type Frequency for Closers from 2021-2023")
 # Four-seam FB
 all_closer_ff <- filter(all_closer_data, pitchname=="FF")
-boxplot(scale(select(all_closer_ff, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+boxplot(scale(select(all_closer_ff, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight), center = FALSE), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
 title("Fastball Pitching Stats Boxplots")
 # Sinker
 all_closer_si <- filter(all_closer_data, pitchname=="SI")
@@ -126,6 +125,57 @@ boxplot(scale(select(all_closer_st, spinrate, relspeed, horzbreak, inducedvertbr
 title("Sweeper Pitching Stats Boxplots")
 ```
 
+```{r}
+all_closer_pitchres <- unique(all_closer_data$pitchresult)
+all_closer_pitchres_desc <- na.omit(unique(all_closer_data$pitchresult_desc))
+
+data.frame(all_closer_pitchres,all_closer_pitchres_desc)
+# Strike/Out: C, F, S, T, W, L, O, M, X
+strike_out <- c("C","F","S","T","W","L","O","M","X")
+# Ball:
+```
+
+```{r}
+out_closer_pitch <- all_closer_data %>% filter(pitchresult %in% strike_out)
+ggplot(data=out_closer_pitch, mapping = aes(x = pitchname, fill = pitchname))  + geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Closers Pitch Type Frequency Resulting in Strikeout/Outs")
+# Four-seam FB
+all_closer_ff <- filter(all_closer_data, pitchname=="FF", pitchresult %in% strike_out)
+boxplot(scale(select(all_closer_ff, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Fastball Pitching Stats Boxplots")
+# Sinker
+all_closer_si <- filter(all_closer_data, pitchname=="SI", pitchresult %in% strike_out)
+boxplot(scale(select(all_closer_si, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Sinker Pitching Stats Boxplots")
+# Slider
+all_closer_sl <- filter(all_closer_data, pitchname=="SL", pitchresult %in% strike_out)
+boxplot(scale(select(all_closer_sl, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Slider Pitching Stats Boxplots")
+# Curveball
+all_closer_cu <- filter(all_closer_data, pitchname=="CU", pitchresult %in% strike_out)
+boxplot(scale(select(all_closer_cu, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Curveball Pitching Stats Boxplots")
+# Changeup
+all_closer_ch <- filter(all_closer_data, pitchname=="CH", pitchresult %in% strike_out)
+boxplot(scale(select(all_closer_ch, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Changeup Pitching Stats Boxplots")
+# Cutter
+all_closer_fc <- filter(all_closer_data, pitchname=="FC", pitchresult %in% strike_out)
+boxplot(scale(select(all_closer_fc, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Cutter Pitching Stats Boxplots")
+# Splitter
+all_closer_fs <- filter(all_closer_data, pitchname=="FS", pitchresult %in% strike_out)
+boxplot(scale(select(all_closer_fs, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Splitter Pitching Stats Boxplots")
+# Knuckle Curve
+all_closer_kc <- filter(all_closer_data, pitchname=="KC", pitchresult %in% strike_out)
+boxplot(scale(select(all_closer_kc, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Knuckle Curve Pitching Stats Boxplots")
+# Sweeper
+all_closer_st <- filter(all_closer_data, pitchname=="ST", pitchresult %in% strike_out)
+boxplot(scale(select(all_closer_st, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Sweeper Pitching Stats Boxplots")
+```
+
 ### Individual Closer Datasets
 
 ```{r}
@@ -147,51 +197,101 @@ for (i in closer_tables) {
 
 ```
 
-## Reliever EDA
+#### Individual Closer Datasets
 
 ```{r}
-# Group each individual game together (by game id or game date)
-# Get all pitchers for home and away team in order
-# Remove first pitcher and then ensure none of datapoints in closer set.
-# Minimum threshold for number of appearances to exclude teams using starting pitchers.
-# 2021 Relievers
-pitch_order_2021 <- pitchwithscore21 %>%
-  group_by(gameid, teambat) %>%
-  arrange(ab) %>%  # Arrange by the order of at-bats or appearances
-  summarise(
-    pitcher_order = list(unique(pitcher)[-1])
-  )
-# Filtering the original dataset based on the pitcher list
-reliever_2021 <- pitchwithscore21 %>%
-  group_by(gameid, teambat) %>%
-  filter(pitcher %in% unlist(pitch_order_2021$pitcher_order[match(gameid, pitch_order_2021$gameid)])) %>% # make sure it's a pitcher in this list. 
-   filter(!(pitcher %in% espnbest21))
-# 2022 Relievers
-pitch_order_2022 <- pitchwithscore22 %>%
-  group_by(gameid, teambat) %>%
-  arrange(ab) %>%  # Arrange by the order of at-bats or appearances
-  summarise(
-    pitcher_order = list(unique(pitcher)[-1])
-  )
-# Filtering the original dataset based on the pitcher list
-reliever_2022 <- pitchwithscore22 %>%
-  group_by(gameid, teambat) %>%
-  filter(pitcher %in% unlist(pitch_order_2022$pitcher_order[match(gameid, pitch_order_2022$gameid)])) %>% # make sure it's a pitcher in this list. 
-   filter(!(pitcher %in% espnbest22))
-# 2023 Relievers
-pitch_order_2023 <- pitchwithscore23 %>%
-  group_by(gameid, teambat) %>%
-  arrange(ab) %>%  # Arrange by the order of at-bats or appearances
-  summarise(
-    pitcher_order = list(unique(pitcher)[-1])
-  )
-# Filtering the original dataset based on the pitcher list
-reliever_2023 <- pitchwithscore23 %>%
-  group_by(gameid, teambat) %>%
-  filter(pitcher %in% unlist(pitch_order_2023$pitcher_order[match(gameid, pitch_order_2023$gameid)])) %>% # make sure it's a pitcher in this list. 
-   filter(!(pitcher %in% espnbest23))
-  
+# Way 1: Reliever Pitch Type Medians per row
+pitcherName <- paste0(all_closer_data$pitcher, " table")
+closer_tables <- split(all_closer_data, pitcherName)
+
+# Create an empty data frame to store averages
+median_by_closer <- data.frame(name=character(), pitch=character(), median_spin=numeric(), median_velo=numeric(),
+                              median_hbreak=numeric(), median_vbreak=numeric(), median_plside=numeric(),
+                              median_plheight=numeric(), stringsAsFactors=FALSE)
+
+# Get Average Stats for Each Pitcher's Pitch Types
+
+# Loop through each reliever
+for (i in closer_tables) {
+  pitchtypes <- unique(i$pitchname)
+
+  # Split by pitch type
+  table_by_pitch <- split(i, i$pitchname)
+
+  # Loop through each pitch type and calculate averages
+  for (j in table_by_pitch) {
+    median_spin <- median(j$spinrate, na.rm=TRUE)
+    median_velo <- median(j$relspeed, na.rm=TRUE)
+    median_hbreak <- median(j$horzbreak, na.rm=TRUE)
+    median_vbreak <- median(j$inducedvertbreak, na.rm=TRUE)
+    median_plside <- median(j$platelocside, na.rm=TRUE)
+    median_plheight <- median(j$platelocheight, na.rm=TRUE)
+
+    # Append the data to median_by_reliever
+    median_by_closer <- rbind(median_by_closer,
+                             data.frame(name=i$pitcher[1], pitch=j$pitchname[1], median_spin=median_spin,
+                                        median_velo=median_velo, median_hbreak=median_hbreak, median_vbreak=median_vbreak,
+                                        median_plside=median_plside, median_plheight=median_plheight))
+  }
+}
+
+# plot
+ggplot(median_by_closer, aes(x=pitch, y=median_vbreak)) +
+  geom_boxplot() +
+  ggtitle("Closer Boxplots of Vertical Break by Pitch Type")
 ```
+
+#### Closer Table
+
+```{r}
+find_outlier <- function(x) {
+  return(x < quantile(x, .25) - 1.5*IQR(x) | x > quantile(x, .75) + 1.5*IQR(x))
+}
+median_by_pitcher <- median_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(median_spin), name, NA))
+ggplot(median_by_pitcher, aes(x=pitch, y=median_spin)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Spin Rates by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+median_by_pitcher <- median_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(median_velo), name, NA))
+ggplot(median_by_pitcher, aes(x=pitch, y=median_velo)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Velocity by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+median_by_pitcher <- median_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(median_hbreak), name, NA))
+ggplot(median_by_pitcher, aes(x=pitch, y=median_hbreak)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Horizontal Break by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+median_by_pitcher <- median_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(median_vbreak), name, NA))
+ggplot(median_by_pitcher, aes(x=pitch, y=median_vbreak)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Vertical Break by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+median_by_pitcher <- median_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(median_plside), name, NA))
+ggplot(median_by_pitcher, aes(x=pitch, y=median_plside)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Vertical Location by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+median_by_pitcher <- median_by_pitcher %>%
+        group_by(pitch) %>%
+        mutate(outlier = ifelse(find_outlier(median_plheight), name, NA))
+ggplot(median_by_pitcher, aes(x=pitch, y=median_plheight)) +
+  geom_boxplot() +
+  ggtitle("Boxplots of Height by Pitch")+
+  geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
+```
+
+#### Closer Pitch Location & Result by Pitch Type
 
 ```{r}
 #location of pitches groups by pitch type
@@ -227,9 +327,9 @@ ggplot(datawscore21_count, aes(x=pitchname, y= pitchresult, size =count)) +
   geom_point(alpha = 0.3)+
   scale_size(range = c(.1, 24))+ 
   facet_grid(pitcherthrows~batterside) #impact of handedness
-
-
 ```
+
+#### Closer B/S Count Pitch Types
 
 ```{r}
 total_counts <- all_closer_data %>%
@@ -262,4 +362,190 @@ for (pitch_type in pitch_types) {
   # Display the plot (optional)
   print(plot)
 }
+```
+
+## Reliever EDA
+
+#### Creating Dataset
+
+```{r}
+# Group each individual game together (by game id or game date)
+# Get all pitchers for home and away team in order
+# Remove first pitcher and then ensure none of datapoints in closer set.
+# Minimum threshold for number of appearances to exclude teams using starting pitchers.
+# 2021 Relievers
+pitch_order_2021 <- pitchwithscore21 %>%
+  group_by(gameid, teambat) %>%
+  arrange(ab) %>%  # Arrange by the order of at-bats or appearances
+  summarise(
+    pitcher_order = list(unique(pitcher)[-1])
+  )
+# Filtering the original dataset based on the pitcher list
+reliever_2021 <- pitchwithscore21 %>%
+  group_by(gameid, teambat) %>%
+  filter(pitcher %in% unlist(pitch_order_2021$pitcher_order[match(gameid, pitch_order_2021$gameid)])) %>% # make sure it's a pitcher in this list. 
+   filter(!(pitcher %in% espnbest21)) %>% ungroup()
+# 2022 Relievers
+pitch_order_2022 <- pitchwithscore22 %>%
+  group_by(gameid, teambat) %>%
+  arrange(ab) %>%  # Arrange by the order of at-bats or appearances
+  summarise(
+    pitcher_order = list(unique(pitcher)[-1])
+  )
+# Filtering the original dataset based on the pitcher list
+reliever_2022 <- pitchwithscore22 %>%
+  group_by(gameid, teambat) %>%
+  filter(pitcher %in% unlist(pitch_order_2022$pitcher_order[match(gameid, pitch_order_2022$gameid)])) %>% # make sure it's a pitcher in this list. 
+   filter(!(pitcher %in% espnbest22)) %>% ungroup()
+# 2023 Relievers
+pitch_order_2023 <- pitchwithscore23 %>%
+  group_by(gameid, teambat) %>%
+  arrange(ab) %>%  # Arrange by the order of at-bats or appearances
+  summarise(
+    pitcher_order = list(unique(pitcher)[-1])
+  )
+# Filtering the original dataset based on the pitcher list
+reliever_2023 <- pitchwithscore23 %>%
+  group_by(gameid, teambat) %>%
+  filter(pitcher %in% unlist(pitch_order_2023$pitcher_order[match(gameid, pitch_order_2023$gameid)])) %>% # make sure it's not a pitcher in this list. 
+   filter(!(pitcher %in% espnbest23)) %>% ungroup()
+
+# Combined Data
+all_reliever_data<- rbind(reliever_2021, reliever_2022, reliever_2023) %>% select(-X)
+  
+```
+
+#### Reliever Pitch Types
+
+```{r}
+ggplot(data=all_reliever_data, mapping = aes(x = pitchname, fill = pitchname))  +
+  geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Pitch Type Frequency for Relievers from 2021-2023")
+out_reliever_pitch <- all_reliever_data %>% filter(pitchresult %in% strike_out)
+ggplot(data=out_reliever_pitch, mapping = aes(x = pitchname, fill = pitchname))  + geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Relievers Pitch Type Frequency Resulting in Strikeout/Outs")
+# Four-seam FB
+all_reliever_ff <- filter(all_reliever_data, pitchname=="FF")
+boxplot(scale(select(all_reliever_ff, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Fastball Pitching Stats Boxplots")
+# Sinker
+all_reliever_si <- filter(all_reliever_data, pitchname=="SI")
+boxplot(scale(select(all_reliever_si, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Sinker Pitching Stats Boxplots")
+# Slider
+all_reliever_sl <- filter(all_reliever_data, pitchname=="SL")
+boxplot(scale(select(all_reliever_sl, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Slider Pitching Stats Boxplots")
+# Curveball
+all_reliever_cu <- filter(all_reliever_data, pitchname=="CU")
+boxplot(scale(select(all_reliever_cu, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Curveball Pitching Stats Boxplots")
+# Changeup
+all_reliever_ch <- filter(all_reliever_data, pitchname=="CH")
+boxplot(scale(select(all_reliever_ch, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Changeup Pitching Stats Boxplots")
+# Cutter
+all_reliever_fc <- filter(all_reliever_data, pitchname=="FC")
+boxplot(scale(select(all_reliever_fc, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Cutter Pitching Stats Boxplots")
+# Splitter
+all_reliever_fs <- filter(all_reliever_data, pitchname=="FS")
+boxplot(scale(select(all_reliever_fs, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Splitter Pitching Stats Boxplots")
+# Knuckle Curve
+all_reliever_kc <- filter(all_reliever_data, pitchname=="KC")
+boxplot(scale(select(all_reliever_kc, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Knuckle Curve Pitching Stats Boxplots")
+# Sweeper
+all_reliever_st <- filter(all_reliever_data, pitchname=="ST")
+boxplot(scale(select(all_reliever_st, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
+title("Sweeper Pitching Stats Boxplots")
+```
+
+```         
+```
+
+#### Reliever B/S Count
+
+```{r}
+total_counts <- all_reliever_data %>%
+  group_by(balls, strikes) %>%
+  summarise(total = n(), .groups = "drop")
+
+# Aggregate the data by pitch type, ball, and strike count
+aggregated_data <- all_reliever_data %>%
+  group_by(pitchname_desc, balls, strikes) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  left_join(total_counts, by = c("balls", "strikes")) %>%  # Join to get total counts
+  mutate(proportion = count / total)  # Calculate proportion
+
+pitch_types <- unique(aggregated_data$pitchname_desc)
+
+for (pitch_type in pitch_types) {
+  # Create the plot for the current pitch type
+  plot <- ggplot(aggregated_data %>% filter(pitchname_desc == pitch_type), 
+                 aes(x = balls, y = strikes, fill = proportion)) +
+    geom_tile() +
+    scale_fill_gradient(low = "white", high = "red") +
+    labs(
+      title = paste0("Heatmap of ", pitch_type, " by Ball and Strike Count (Proportions)"),
+      x = "Ball Count",
+      y = "Strike Count",
+      fill = "Proportion"
+    ) +
+    theme_minimal()
+
+  # Display the plot (optional)
+  print(plot)
+}
+```
+
+#### Reliever Individual Statistics
+
+```{r}
+# Way 1: Reliever Pitch Type Averages per row
+pitcherName <- paste0(all_reliever_data$pitcher, " table")
+reliever_tables <- split(all_reliever_data, pitcherName)
+
+# Create an empty data frame to store averages
+median_by_reliever <- data.frame(name=character(), pitch=character(), median_spin=numeric(), median_velo=numeric(),
+                              median_hbreak=numeric(), median_vbreak=numeric(), median_plside=numeric(),
+                              median_plheight=numeric(), stringsAsFactors=FALSE)
+
+# Get Average Stats for Each Pitcher's Pitch Types
+
+# Loop through each reliever
+for (i in reliever_tables) {
+  pitchtypes <- unique(i$pitchname)
+
+  # Split by pitch type
+  table_by_pitch <- split(i, i$pitchname)
+
+  # Loop through each pitch type and calculate averages
+  for (j in table_by_pitch) {
+    median_spin <- median(j$spinrate, na.rm=TRUE)
+    median_velo <- median(j$relspeed, na.rm=TRUE)
+    median_hbreak <- median(j$horzbreak, na.rm=TRUE)
+    median_vbreak <- median(j$inducedvertbreak, na.rm=TRUE)
+    median_plside <- median(j$platelocside, na.rm=TRUE)
+    median_plheight <- median(j$platelocheight, na.rm=TRUE)
+
+    # Append the data to median_by_reliever
+    median_by_reliever <- rbind(median_by_reliever,
+                             data.frame(name=i$pitcher[1], pitch=j$pitchname[1], median_spin=median_spin,
+                                        median_velo=median_velo, median_hbreak=median_hbreak, median_vbreak=median_vbreak,
+                                        median_plside=median_plside, median_plheight=median_plheight))
+  }
+}
+
+# plot
+ggplot(median_by_reliever, aes(x=pitch, y=median_vbreak)) +
+  geom_boxplot() +
+  ggtitle("Reliever Boxplots of Vertical Break by Pitch Type")
+
+```
+
+#### Identify Number of Relievers
+
+```{r}
+relievers <- unique(median_by_reliever$name)
+num_relievers <- length(relievers)
 ```
