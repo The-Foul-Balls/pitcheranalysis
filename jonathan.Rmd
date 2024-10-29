@@ -551,6 +551,8 @@ num_closers <- length(unique(median_by_closer$name))
 
 ## Slider Analysis
 
+### Kolmogorov-Smirnov Tests
+
 Compare if distributions are the same between closers and relievers for their slider pitch characteristics
 
 ```{r}
@@ -581,5 +583,33 @@ ks.test(rel_sample$horzbreak,all_clo_sl_no_wild$horzbreak)
 
 # KS Test - Vertical Break
 ks.test(rel_sample$inducedvertbreak,all_clo_sl_no_wild$inducedvertbreak)
+  # Distributions Different
+
+
+# For Individual Pitchers
+set.seed(4930)
+# Create classification dataset
+med_sl_by_reliever <- filter(median_by_reliever, pitch == "SL") %>% mutate(type = "rel")
+med_sl_by_closer <- filter(median_by_closer, pitch == "SL") %>% mutate(type = "close", .before= outlier)
+med_sl_by_closer <- med_sl_by_closer[,1:9]
+# med_sl_by_pitcher <- rbind(med_sl_by_reliever,med_sl_by_closer[,1:9])
+# med_sl_by_pitcher$type <- as.factor(med_sl_by_pitcher$type)
+
+sample_med_relievers_sl <- med_sl_by_reliever[sample(nrow(med_sl_by_reliever), size = nrow(med_sl_by_closer), replace = FALSE), ]
+
+# KS Test - Spin Rate
+ks.test(med_sl_by_reliever$median_spin,med_sl_by_closer$median_spin)
+  # Distributions Different
+
+# KS Test - Release Speed
+ks.test(med_sl_by_reliever$median_velo,med_sl_by_closer$median_velo)
+  # Distributions Different
+
+# KS Test - Horizontal Break
+ks.test(med_sl_by_reliever$median_hbreak,med_sl_by_closer$median_hbreak)
+  # Distributions Different
+
+# KS Test - Vertical Break
+ks.test(med_sl_by_reliever$median_vbreak,med_sl_by_closer$median_vbreak)
   # Distributions Different
 ```
