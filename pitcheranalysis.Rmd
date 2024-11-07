@@ -648,59 +648,59 @@ med_sl_by_pitcher$log_abs_median_vbreak <- log(med_sl_by_pitcher$abs_median_vbre
 med_sl_by_pitcher$log_abs_median_hbreak <- log(med_sl_by_pitcher$abs_median_hbreak)
 
 ## Basic Log Model
-log_model <- glm(log_abs_median_vbreak ~ median_spin + median_velo + log_abs_median_hbreak, 
+vb_log_model <- glm(log_abs_median_vbreak ~ median_spin + median_velo + log_abs_median_hbreak, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
-summary(log_model)
+summary(vb_log_model)
 
-residuals_log_model <- residuals(log_model)
-fitted_values_log_model <- fitted(log_model)
+vb_residuals_log_model <- residuals(vb_log_model)
+vb_fitted_values_log_model <- fitted(vb_log_model)
 
-plot(fitted_values_log_model, residuals_log_model,
+plot(vb_fitted_values_log_model, vb_residuals_log_model,
      xlab = "Fitted Values",
-     ylab = "Residuals",
+     ylab = "VB Residuals",
      main = "Residuals vs Fitted Values",
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
 ## Interaction Model 1
-log_model_int <- glm(log_abs_median_vbreak ~ median_spin + median_velo + log_abs_median_hbreak + median_spin*median_velo, 
+vb_log_model_int <- glm(log_abs_median_vbreak ~ median_spin + median_velo + log_abs_median_hbreak + median_spin*median_velo, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
-summary(log_model_int)
+summary(vb_log_model_int)
 
-residuals_log_model_int <- residuals(log_model_int)
-fitted_values_log_model_int <- fitted(log_model_int)
+vb_residuals_log_model_int <- residuals(vb_log_model_int)
+vb_fitted_values_log_model_int <- fitted(vb_log_model_int)
 
-plot(fitted_values_log_model_int, residuals_log_model_int,
+plot(vb_fitted_values_log_model_int, vb_residuals_log_model_int,
      xlab = "Fitted Values",
-     ylab = "Residuals",
+     ylab = "VB Residuals",
      main = "Residuals vs Fitted Values",
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
 ## Interaction Model 2
 
-log_model_int_2 <- glm(log_abs_median_vbreak ~ median_spin + median_velo + log_abs_median_hbreak + median_spin*median_velo  + median_velo*log_abs_median_hbreak, 
+vb_log_model_int_2 <- glm(log_abs_median_vbreak ~ median_spin + median_velo + log_abs_median_hbreak + median_spin*median_velo  + median_velo*log_abs_median_hbreak, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
-summary(log_model_int_2)
+summary(vb_log_model_int_2)
 
-residuals_log_model_int_2 <- residuals(log_model_int_2)
-fitted_values_log_model_int_2 <- fitted(log_model_int_2)
+vb_residuals_log_model_int_2 <- residuals(vb_log_model_int_2)
+vb_fitted_values_log_model_int_2 <- fitted(vb_log_model_int_2)
 
-plot(fitted_values_log_model_int_2, residuals_log_model_int_2,
+plot(vb_fitted_values_log_model_int_2, vb_residuals_log_model_int_2,
      xlab = "Fitted Values",
-     ylab = "Residuals",
+     ylab = "VB Residuals",
      main = "Residuals vs Fitted Values",
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
 med_sl_by_pitcher <- med_sl_by_pitcher |> 
-   mutate(logabs_vbreak_resid = residuals(log_model_int_2))
+   mutate(logabs_vbreak_resid = residuals(vb_log_model_int_2))
 
 
-summary.lm(log_model_int_2) # going with model 3
+summary.lm(vb_log_model_int_2) # going with model 3
 ```
 
 ### Horizontal Break models and residuals
@@ -710,14 +710,14 @@ summary.lm(log_model_int_2) # going with model 3
 hb_log_model <- glm(log_abs_median_hbreak ~ median_spin + median_velo, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
-summary(log_model)
+summary(hb_log_model)
 
-residuals_log_model <- residuals(log_model)
-fitted_values_log_model <- fitted(log_model)
+hb_residuals_log_model <- residuals(hb_log_model)
+hb_fitted_values_log_model <- fitted(hb_log_model)
 
-plot(fitted_values_log_model, residuals_log_model,
+plot(hb_fitted_values_log_model, hb_residuals_log_model,
      xlab = "Fitted Values",
-     ylab = "Residuals",
+     ylab = "HB Residuals",
      main = "Residuals vs Fitted Values",
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
@@ -726,14 +726,14 @@ abline(h = 0, col = "red", lwd = 2)
 hb_log_model_int <- glm(log_abs_median_hbreak ~ median_spin + median_velo + log_abs_median_vbreak + median_spin*median_velo, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
-summary(log_model_int)
+summary(hb_log_model_int)
 
-residuals_log_model_int <- residuals(log_model_int)
-fitted_values_log_model_int <- fitted(log_model_int)
+hb_residuals_log_model_int <- residuals(hb_log_model_int)
+hb_fitted_values_log_model_int <- fitted(hb_log_model_int)
 
-plot(fitted_values_log_model_int, residuals_log_model_int,
+plot(hb_fitted_values_log_model_int, hb_residuals_log_model_int,
      xlab = "Fitted Values",
-     ylab = "Residuals",
+     ylab = "HB Residuals",
      main = "Residuals vs Fitted Values",
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
@@ -745,12 +745,12 @@ hb_log_model_int_2 <- glm(log_abs_median_hbreak ~ median_spin + median_velo + lo
                        data = med_sl_by_pitcher)
 summary(log_model_int_2)
 
-residuals_log_model_int_2 <- residuals(log_model_int_2)
-fitted_values_log_model_int_2 <- fitted(log_model_int_2)
+hb_residuals_log_model_int_2 <- residuals(hb_log_model_int_2)
+hb_fitted_values_log_model_int_2 <- fitted(hb_log_model_int_2)
 
-plot(fitted_values_log_model_int_2, residuals_log_model_int_2,
+plot(hb_fitted_values_log_model_int_2, hb_residuals_log_model_int_2,
      xlab = "Fitted Values",
-     ylab = "Residuals",
+     ylab = "HB Residuals",
      main = "Residuals vs Fitted Values",
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
