@@ -696,6 +696,10 @@ plot(fitted_values_log_model_int_2, residuals_log_model_int_2,
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
+med_sl_by_pitcher <- med_sl_by_pitcher |> 
+   mutate(logabs_vbreak_resid = residuals(log_model_int_2))
+
+
 summary.lm(log_model_int_2) # going with model 3
 ```
 
@@ -753,6 +757,9 @@ abline(h = 0, col = "red", lwd = 2)
 
 summary.lm(hb_log_model)
 
+med_sl_by_pitcher <- med_sl_by_pitcher |> 
+   mutate(logabs_hbreak_resid = residuals(hb_log_model))
+
 # going with model 1 (additive)
 ```
 
@@ -762,7 +769,21 @@ Compare Relievers to Closers per pitch metric
 
 ```{r}
 
+med_sl_by_pitcher_scaled <- med_sl_by_pitcher |>
+  select(median_spin, median_velo, median_hbreak, median_vbreak, logabs_hbreak_resid, logabs_vbreak_resid) |> 
+  scale() |>
+  as.data.frame()
 
+type <- med_sl_by_pitcher |>
+  select(type)
+
+med_sl_by_pitcher_scaled <- cbind(type, med_sl_by_pitcher_scaled) |>
+  pivot_longer(cols = -type, names_to = "Variable", values_to = "Value")
+
+ggplot(med_sl_by_pitcher_scaled, aes(x = Value)) +
+  geom_histogram(bins = 15, fill = "blue") +
+  facet_grid(type ~ Variable, scales = "free_x") +
+  labs(title = "Slider Pitching Stats Histograms", y = "Frequency", x = "Standardized Values")
 ```
 
 ### Pulling Top N Percentile of Relievers and Comparing to Closers
