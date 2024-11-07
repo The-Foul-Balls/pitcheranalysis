@@ -595,7 +595,27 @@ set.seed(4930)
 med_sl_by_reliever <- filter(median_by_reliever, pitch == "SL", pitch_count >= 30) %>% mutate(type = "rel")
 med_sl_by_closer <- filter(median_by_closer, pitch == "SL") %>% mutate(type = "close")
 med_sl_by_pitcher <- rbind(med_sl_by_reliever,med_sl_by_closer)
+
+# Add Information about RV100 for Closer
+
+# Add Information about Pitch Angle to Pitchers
+rv100 <- read.csv("data/rv100data.csv")
+
+result <- med_sl_by_pitcher %>%
+  inner_join(rv100[,c(1,3)], by = "name")
+
+sameNamediffPlayer <- result %>%
+  group_by(name, type) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+relAndCloser <- med_sl_by_pitcher %>%
+  group_by(name) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
 med_sl_by_pitcher$type <- as.factor(med_sl_by_pitcher$type)
+
 
 sample_med_relievers_sl <- med_sl_by_reliever[sample(nrow(med_sl_by_reliever), size = nrow(med_sl_by_closer), replace = FALSE), ]
 
@@ -614,62 +634,6 @@ ks.test(med_sl_by_reliever$median_hbreak,med_sl_by_closer$median_hbreak)
 # KS Test - Vertical Break
 ks.test(med_sl_by_reliever$median_vbreak,med_sl_by_closer$median_vbreak)
   # Distributions Different
-```
-
-### Horizontal Break models and residuals
-
-```{r}
-# Create a new response variable as the log transform of 'median_hbreak'
-med_sl_by_pitcher$log_median_hbreak <- log(med_sl_by_pitcher$median_hbreak)
-
-## Basic Log Model
-log_model <- glm(log_median_hbreak ~ median_spin + median_velo + median_vbreak, 
-                      family = gaussian(link = "identity"), 
-                       data = med_sl_by_pitcher)
-summary(log_model)
-
-residuals_log_model <- residuals(log_model)
-fitted_values_log_model <- fitted(log_model)
-
-plot(fitted_values_log_model, residuals_log_model,
-     xlab = "Fitted Values",
-     ylab = "Residuals",
-     main = "Residuals vs Fitted Values",
-     pch = 16, col = "blue")
-abline(h = 0, col = "red", lwd = 2)
-
-## Interaction Model 1
-log_model_int <- glm(log_median_hbreak ~ median_spin + median_velo + median_vbreak + median_spin*median_velo, 
-                      family = gaussian(link = "identity"), 
-                       data = med_sl_by_pitcher)
-summary(log_model_int)
-
-residuals_log_model_int <- residuals(log_model_int)
-fitted_values_log_model_int <- fitted(log_model_int)
-
-plot(fitted_values_log_model_int, residuals_log_model_int,
-     xlab = "Fitted Values",
-     ylab = "Residuals",
-     main = "Residuals vs Fitted Values",
-     pch = 16, col = "blue")
-abline(h = 0, col = "red", lwd = 2)
-
-## Interaction Model 2
-
-log_model_int_2 <- glm(log_median_hbreak ~ median_spin + median_velo + median_vbreak + median_spin*median_velo  + median_velo*median_vbreak, 
-                      family = gaussian(link = "identity"), 
-                       data = med_sl_by_pitcher)
-summary(log_model_int_2)
-
-residuals_log_model_int_2 <- residuals(log_model_int_2)
-fitted_values_log_model_int_2 <- fitted(log_model_int_2)
-
-plot(fitted_values_log_model_int_2, residuals_log_model_int_2,
-     xlab = "Fitted Values",
-     ylab = "Residuals",
-     main = "Residuals vs Fitted Values",
-     pch = 16, col = "blue")
-abline(h = 0, col = "red", lwd = 2)
 ```
 
 ### Vertical Break models & residuals
