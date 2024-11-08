@@ -599,15 +599,10 @@ med_sl_by_pitcher <- rbind(med_sl_by_reliever,med_sl_by_closer)
 # Add Information about RV100 for Closer
 
 # Add Information about Pitch Angle to Pitchers
-rv100 <- read.csv("data/rv100data.csv")
+rv100 <- read.csv("data/rv100_closers.csv")
 
-result <- med_sl_by_pitcher %>%
-  inner_join(rv100[,c(1,3)], by = "name")
-
-sameNamediffPlayer <- result %>%
-  group_by(name, type) %>%
-  filter(n() > 1) %>%
-  ungroup()
+med_sl_by_closer <- med_sl_by_closer %>%
+  inner_join(rv100[1:4], by = "name")
 
 relAndCloser <- med_sl_by_pitcher %>%
   group_by(name) %>%
@@ -743,7 +738,7 @@ abline(h = 0, col = "red", lwd = 2)
 hb_log_model_int_2 <- glm(log_abs_median_hbreak ~ median_spin + median_velo + log_abs_median_vbreak + median_spin*median_velo  + median_velo*log_abs_median_vbreak, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
-summary(log_model_int_2)
+summary(hb_log_model_int_2)
 
 hb_residuals_log_model_int_2 <- residuals(hb_log_model_int_2)
 hb_fitted_values_log_model_int_2 <- fitted(hb_log_model_int_2)
@@ -768,7 +763,6 @@ med_sl_by_pitcher <- med_sl_by_pitcher |>
 Compare Relievers to Closers per pitch metric
 
 ```{r}
-
 med_sl_by_pitcher_scaled <- med_sl_by_pitcher |>
   select(median_spin, median_velo, median_hbreak, median_vbreak, logabs_hbreak_resid, logabs_vbreak_resid) |> 
   scale() |>
@@ -781,17 +775,9 @@ med_sl_by_pitcher_scaled <- cbind(type, med_sl_by_pitcher_scaled) |>
   pivot_longer(cols = -type, names_to = "Variable", values_to = "Value")
 
 ggplot(med_sl_by_pitcher_scaled, aes(x = Value)) +
-  geom_histogram(bins = 15, fill = "blue") +
+  geom_histogram(aes(y = ..density..), bins = 15, fill = "blue") +
   facet_grid(type ~ Variable, scales = "free_x") +
-  labs(title = "Slider Pitching Stats Histograms", y = "Frequency", x = "Standardized Values")
-```
-
-### Pulling Top N Percentile of Relievers and Comparing to Closers
-
-Run K.S. Test to compare Top N Relievers to Closer distribution to check
-
-```{r}
-
+  labs(title = "Slider Pitching Stats Histograms", y = "Proportion", x = "Standardized Values")
 ```
 
 ### RV100 Prediction Model
@@ -801,3 +787,14 @@ Train on Closer and Apply to Reliever Subset
 ```{r}
 
 ```
+
+
+
+### Pulling Top N Percentile of Relievers and Comparing to Closers
+
+Run K.S. Test to compare Top N Relievers to Closer distribution to check
+
+```{r}
+
+```
+
