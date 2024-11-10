@@ -786,6 +786,31 @@ Train on Closer and Apply to Reliever Subset
 
 ```{r}
 
+#Make model to predict rv_100 for closers
+med_sl_by_closer_new <- dplyr::inner_join(med_sl_by_closer, 
+                                   med_sl_by_pitcher %>% select(name, logabs_hbreak_resid, logabs_vbreak_resid), 
+                                   by = "name") %>%
+                 dplyr::distinct(name, .keep_all = TRUE)
+
+rv100_model <- glm(rv_100 ~ median_velo + median_spin + logabs_hbreak_resid + logabs_vbreak_resid, data = med_sl_by_closer_new)
+summary(rv100_model)
+
+rv100_model_int <- glm(rv_100 ~ logabs_hbreak_resid +
+                        median_spin * logabs_hbreak_resid, 
+                       data = med_sl_by_closer_new)
+summary(rv100_model_int)
+
+#Use model to predict rv_100 for relievers
+med_sl_by_reliever_new <- dplyr::inner_join(med_sl_by_reliever, 
+                                   med_sl_by_pitcher %>% select(name, logabs_hbreak_resid, logabs_vbreak_resid), 
+                                   by = "name") %>%
+                 dplyr::distinct(name, .keep_all = TRUE)
+
+rv100_relievers_predicted <- predict(rv100_model_int, newdata = med_sl_by_reliever_new, type = "response")
+
+med_sl_by_reliever_new$rv100_relievers_predicted <- rv100_relievers_predicted
+
+
 ```
 
 
