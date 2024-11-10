@@ -817,6 +817,20 @@ med_sl_by_reliever_new$rv100_relievers_predicted <- rv100_relievers_predicted
 
 ### Pulling Top N Percentile of Relievers and Comparing to Closers
 
+```{r}
+# Calculate the top 5% row index count
+top_5_percent_rows <- floor(0.05 * nrow(med_sl_by_reliever_new))
+
+# Sort by descending predicted rv100, then filter the top 5% by rank
+top_performing_relievers_5_percent <- med_sl_by_reliever_new %>%
+  arrange(desc(rv100_relievers_predicted)) %>%  # Sort descending by predicted values
+  slice(1:top_5_percent_rows)  # Take only the first 'top_5_percent_rows' rows
+
+# View the names of the top-performing relievers by rv100 prediction
+top_performing_relievers_5_percent %>% select(name, rv100_relievers_predicted)
+
+```
+
 Run K.S. Test to compare Top N Relievers to Closer distribution to check
 
 ```{r}
