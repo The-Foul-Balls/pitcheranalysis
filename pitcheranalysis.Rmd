@@ -813,9 +813,7 @@ med_sl_by_reliever_new$rv100_relievers_predicted <- rv100_relievers_predicted
 
 ```
 
-
-
-### Pulling Top N Percentile of Relievers and Comparing to Closers
+### Pulling Top 5% Percentile of RV/100 Predictions for Relievers
 
 ```{r}
 # Calculate the top 5% row index count
@@ -831,9 +829,45 @@ top_performing_relievers_5_percent %>% select(name, rv100_relievers_predicted)
 
 ```
 
-Run K.S. Test to compare Top N Relievers to Closer distribution to check
+### Comparing Percentiles among all relievers to verify
 
 ```{r}
+pitch_metrics <- c("median_spin", "median_velo", "median_hbreak", "median_vbreak", "logabs_hbreak_resid", "logabs_vbreak_resid")
 
+reliever_percentiles <- med_sl_by_reliever_new %>%
+  mutate(across(all_of(pitch_metrics), ~ percent_rank(.), .names = "percentile_{col}"))
+
+top_rel_percentiles <- top_performing_relievers_5_percent %>%
+  left_join(
+    reliever_percentiles %>% select(name, starts_with("percentile_")),
+    by = "name"
+  )
 ```
 
+### Run K.S. Test to compare Top 5% Relievers to Closer distribution to check
+
+```{r}
+# KS Test - Spin Rate
+ks.test(top_rel_percentiles$median_spin,med_sl_by_closer$median_spin)
+  # Reject Ho - Distributions Different
+
+# KS Test - Release Speed (Velocity)
+ks.test(top_rel_percentiles$median_velo,med_sl_by_closer$median_velo)
+  # Fail to Reject Ho - Distributions Same
+
+# KS Test - Raw Horizontal Break
+ks.test(top_rel_percentiles$median_hbreak,med_sl_by_closer$median_hbreak)
+  # Reject Ho - Distributions Different
+
+# KS Test - Raw Vertical Break
+ks.test(top_rel_percentiles$median_vbreak,med_sl_by_closer$median_vbreak)
+  # Fail to Reject Ho - Distributions Same
+
+# KS Test - Horizontal Break Residual
+ks.test(top_rel_percentiles$logabs_hbreak_resid,med_sl_by_closer_new$logabs_hbreak_resid)
+  # Reject Ho - Distributions Different
+
+# KS Test - Vertical Break Residual
+ks.test(top_rel_percentiles$logabs_vbreak_resid, med_sl_by_closer_new$logabs_vbreak_resid)
+  # Fail to Reject Ho - Distributions Same
+```
