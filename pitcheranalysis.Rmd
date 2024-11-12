@@ -798,7 +798,13 @@ summary(rv100_model)
 rv100_model_int <- glm(rv_100 ~ logabs_hbreak_resid +
                         median_spin * logabs_hbreak_resid, 
                        data = med_sl_by_closer_new)
-summary(rv100_model_int)
+summary.lm(rv100_model_int)
+
+
+rv100_model_int_2 <- glm(rv_100 ~ logabs_hbreak_resid +
+                        median_spin + logabs_vbreak_resid + median_velo, 
+                       data = med_sl_by_closer_new)
+summary.lm(rv100_model_int_2)
 
 #Use model to predict rv_100 for relievers
 med_sl_by_reliever_new <- dplyr::inner_join(med_sl_by_reliever, 
@@ -806,7 +812,7 @@ med_sl_by_reliever_new <- dplyr::inner_join(med_sl_by_reliever,
                                    by = "name") %>%
                  dplyr::distinct(name, .keep_all = TRUE)
 
-rv100_relievers_predicted <- predict(rv100_model_int, newdata = med_sl_by_reliever_new, type = "response")
+rv100_relievers_predicted <- predict(rv100_model_int_2, newdata = med_sl_by_reliever_new, type = "response")
 
 med_sl_by_reliever_new$rv100_relievers_predicted <- rv100_relievers_predicted
 
