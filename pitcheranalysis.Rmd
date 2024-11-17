@@ -687,7 +687,7 @@ vb_fitted_values_log_model_int_2 <- fitted(vb_log_model_int_2)
 plot(vb_fitted_values_log_model_int_2, vb_residuals_log_model_int_2,
      xlab = "Fitted Values",
      ylab = "VB Residuals",
-     main = "Residuals vs Fitted Values",
+     main = "Vertical Break Residuals vs Fitted Values",
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
@@ -713,7 +713,7 @@ hb_fitted_values_log_model <- fitted(hb_log_model)
 plot(hb_fitted_values_log_model, hb_residuals_log_model,
      xlab = "Fitted Values",
      ylab = "HB Residuals",
-     main = "Residuals vs Fitted Values",
+     main = "Horizontal Break Residuals vs Fitted Values",
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
@@ -800,19 +800,13 @@ rv100_model_int <- glm(rv_100 ~ logabs_hbreak_resid +
                        data = med_sl_by_closer_new)
 summary.lm(rv100_model_int)
 
-
-rv100_model_int_2 <- glm(rv_100 ~ logabs_hbreak_resid +
-                        median_spin + logabs_vbreak_resid + median_velo, 
-                       data = med_sl_by_closer_new)
-summary.lm(rv100_model_int_2)
-
 #Use model to predict rv_100 for relievers
 med_sl_by_reliever_new <- dplyr::inner_join(med_sl_by_reliever, 
                                    med_sl_by_pitcher %>% select(name, logabs_hbreak_resid, logabs_vbreak_resid), 
                                    by = "name") %>%
                  dplyr::distinct(name, .keep_all = TRUE)
 
-rv100_relievers_predicted <- predict(rv100_model_int_2, newdata = med_sl_by_reliever_new, type = "response")
+rv100_relievers_predicted <- predict(rv100_model, newdata = med_sl_by_reliever_new, type = "response")
 
 med_sl_by_reliever_new$rv100_relievers_predicted <- rv100_relievers_predicted
 
