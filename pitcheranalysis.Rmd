@@ -1,5 +1,3 @@
-\@\@ -0,0 +1,205 \@\@ 31b8e172-b470-440e-83d8-e6b185028602:dAB5AHAAZQA6AFoAUQBBAHgAQQBEAGcAQQBNAFEAQQA1AEEARABZAEEATQBBAEEAMQBBAEMAMABBAE0AQQBCAGgAQQBHAE0AQQBaAEEAQQB0AEEARABRAEEAWgBnAEIAaABBAEcAVQBBAEwAUQBBADQAQQBHAEkAQQBPAFEAQQA1AEEAQwAwAEEATwBRAEIAagBBAEQARQBBAFkAZwBBADMAQQBHAEkAQQBaAEEAQQAzAEEARwBNAEEATQBBAEIAbQBBAEQARQBBAAoAcABvAHMAaQB0AGkAbwBuADoATQBRAEEANABBAEEAPQA9AAoAcAByAGUAZgBpAHgAOgAKAHMAbwB1AHIAYwBlADoATABRAEEAdABBAEMAMABBAEMAZwBCADAAQQBHAGsAQQBkAEEAQgBzAEEARwBVAEEATwBnAEEAZwBBAEMASQBBAGMAQQBCAHAAQQBIAFEAQQBZAHcAQgBvAEEARwBVAEEAYwBnAEIAaABBAEcANABBAFkAUQBCAHMAQQBIAGsAQQBjAHcAQgBwAEEASABNAEEASQBnAEEASwBBAEcAOABBAGQAUQBCADAAQQBIAEEAQQBkAFEAQgAwAEEARABvAEEASQBBAEIAbwBBAEgAUQBBAGIAUQBCAHMAQQBGADgAQQBaAEEAQgB2AEEARwBNAEEAZABRAEIAdABBAEcAVQBBAGIAZwBCADAAQQBBAG8AQQBaAEEAQgBoAEEASABRAEEAWgBRAEEANgBBAEMAQQBBAEkAZwBBAHkAQQBEAEEAQQBNAGcAQQAwAEEAQwAwAEEATQBBAEEANQBBAEMAMABBAE0AUQBBAHcAQQBDAEkAQQBDAGcAQQB0AEEAQwAwAEEATABRAEEAPQAKAHMAdQBmAGYAaQB4ADoA:31b8e172-b470-440e-83d8-e6b185028602
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -84,9 +82,11 @@ all_closer_data<- rbind(espnsbestclosers21, espnsbestclosers22, espnsbestclosers
 # ALL CLOSER DATA: Get each pitch type, plot frequencies, boxplot for pitching stats
 all_closer_pitchtypes <- unique(all_closer_data$pitchname)
 all_closer_pitchdesc <- unique(all_closer_data$pitchname_desc)
+top3_pitches <- c("FF", "SL", "SI")
+clo_top3_data <- filter(all_closer_data, all_closer_data$pitchname %in% top3_pitches)
 
-ggplot(data=all_closer_data, mapping = aes(x = pitchname, fill = pitchname))  +
-  geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Pitch Type Frequency for Closers from 2021-2023")
+ggplot(data=clo_top3_data, mapping = aes(x = pitchname, fill = pitchname))  +
+  geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Most Frequent Closer Pitch Types") + theme_gray(base_size = 18)
 # Four-seam FB
 all_closer_ff <- filter(all_closer_data, pitchname=="FF")
 boxplot(scale(select(all_closer_ff, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight), center = FALSE), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
@@ -126,17 +126,20 @@ title("Sweeper Pitching Stats Boxplots")
 ```
 
 ```{r}
+# Defining Ball vs Strikeout for Graphs
 all_closer_pitchres <- unique(all_closer_data$pitchresult)
 all_closer_pitchres_desc <- na.omit(unique(all_closer_data$pitchresult_desc))
 
 data.frame(all_closer_pitchres,all_closer_pitchres_desc)
 # Strike/Out: C, F, S, T, W, L, O, M, X
 strike_out <- c("C","F","S","T","W","L","O","M","X")
-# Ball:
 ```
 
 ```{r}
+# Pitch Distributions of Strikeouts
 out_closer_pitch <- all_closer_data %>% filter(pitchresult %in% strike_out)
+
+### Boxplots for Pitch Types
 ggplot(data=out_closer_pitch, mapping = aes(x = pitchname, fill = pitchname))  + geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Closers Pitch Type Frequency Resulting in Strikeout/Outs")
 # Four-seam FB
 all_closer_ff <- filter(all_closer_data, pitchname=="FF", pitchresult %in% strike_out)
@@ -178,13 +181,13 @@ title("Sweeper Pitching Stats Boxplots")
 
 ### Individual Closer Datasets
 
-```{r}
-# vector of all closing pitchers (not used right now)
-every_closer <- unique(c(espnbest21, espnbest22, espnbest23)) 
+#### Individual Closer Pitch Distributions
 
+```{r}
+### Individual Closer Pitch Distributions
 pitcherName <- paste0(all_closer_data$pitcher, " table")
 
-#closer_tables is a list of tables
+# closer_tables is a list of tables
 closer_tables <- split(all_closer_data,pitcherName)
 
 for (i in closer_tables) {
@@ -200,16 +203,14 @@ for (i in closer_tables) {
 #### Individual Closer Datasets
 
 ```{r}
-# Way 1: Reliever Pitch Type Medians per row
 pitcherName <- paste0(all_closer_data$pitcher, " table")
 closer_tables <- split(all_closer_data, pitcherName)
 
-# Create an empty data frame to store averages
 median_by_closer <- data.frame(name=character(), pitch=character(), median_spin=numeric(), median_velo=numeric(),
                               median_hbreak=numeric(), median_vbreak=numeric(), median_plside=numeric(),
                               median_plheight=numeric(), pitch_count=numeric(), stringsAsFactors=FALSE)
 
-# Get Average Stats for Each Pitcher's Pitch Types
+# Get Median Stats for Each Pitcher's Pitch Types
 
 # Loop through each reliever
 for (i in closer_tables) {
@@ -236,60 +237,10 @@ for (i in closer_tables) {
   }
 }
 
-# plot
+# Boxplot
 ggplot(median_by_closer, aes(x=pitch, y=median_vbreak)) +
   geom_boxplot() +
   ggtitle("Closer Boxplots of Vertical Break by Pitch Type")
-```
-
-#### Closer Table
-
-```{r}
-# find_outlier <- function(x) {
-#   return(x < quantile(x, .25) - 1.5*IQR(x) | x > quantile(x, .75) + 1.5*IQR(x))
-# }
-# median_by_pitcher <- median_by_pitcher %>%
-#         group_by(pitch) %>%
-#         mutate(outlier = ifelse(find_outlier(median_spin), name, NA))
-# ggplot(median_by_pitcher, aes(x=pitch, y=median_spin)) +
-#   geom_boxplot() +
-#   ggtitle("Boxplots of Spin Rates by Pitch")+
-#   geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
-# median_by_pitcher <- median_by_pitcher %>%
-#         group_by(pitch) %>%
-#         mutate(outlier = ifelse(find_outlier(median_velo), name, NA))
-# ggplot(median_by_pitcher, aes(x=pitch, y=median_velo)) +
-#   geom_boxplot() +
-#   ggtitle("Boxplots of Velocity by Pitch")+
-#   geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
-# median_by_pitcher <- median_by_pitcher %>%
-#         group_by(pitch) %>%
-#         mutate(outlier = ifelse(find_outlier(median_hbreak), name, NA))
-# ggplot(median_by_pitcher, aes(x=pitch, y=median_hbreak)) +
-#   geom_boxplot() +
-#   ggtitle("Boxplots of Horizontal Break by Pitch")+
-#   geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
-# median_by_pitcher <- median_by_pitcher %>%
-#         group_by(pitch) %>%
-#         mutate(outlier = ifelse(find_outlier(median_vbreak), name, NA))
-# ggplot(median_by_pitcher, aes(x=pitch, y=median_vbreak)) +
-#   geom_boxplot() +
-#   ggtitle("Boxplots of Vertical Break by Pitch")+
-#   geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
-# median_by_pitcher <- median_by_pitcher %>%
-#         group_by(pitch) %>%
-#         mutate(outlier = ifelse(find_outlier(median_plside), name, NA))
-# ggplot(median_by_pitcher, aes(x=pitch, y=median_plside)) +
-#   geom_boxplot() +
-#   ggtitle("Boxplots of Vertical Location by Pitch")+
-#   geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
-# median_by_pitcher <- median_by_pitcher %>%
-#         group_by(pitch) %>%
-#         mutate(outlier = ifelse(find_outlier(median_plheight), name, NA))
-# ggplot(median_by_pitcher, aes(x=pitch, y=median_plheight)) +
-#   geom_boxplot() +
-#   ggtitle("Boxplots of Height by Pitch")+
-#   geom_text(aes(label=outlier), na.rm=TRUE, hjust=-.5)
 ```
 
 #### Closer Pitch Location & Result by Pitch Type
@@ -419,10 +370,17 @@ all_reliever_data<- rbind(reliever_2021, reliever_2022, reliever_2023) %>% selec
 #### Reliever Pitch Types
 
 ```{r}
-ggplot(data=all_reliever_data, mapping = aes(x = pitchname, fill = pitchname))  +
-  geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Pitch Type Frequency for Relievers from 2021-2023")
+# Top 3 Frequent Reliever Pitch Types 
+top3_pitches <- c("FF", "SL", "SI")
+rel_top3_data <- filter(all_reliever_data, all_reliever_data$pitchname %in% top3_pitches)
+ggplot(data=rel_top3_data, mapping = aes(x = pitchname, fill = pitchname))  +
+  geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Most Frequent Reliever Pitch Types") + theme_gray(base_size = 18)
+
+# Reliever Pitch Type Frequency for Strikeouts/Outs
 out_reliever_pitch <- all_reliever_data %>% filter(pitchresult %in% strike_out)
 ggplot(data=out_reliever_pitch, mapping = aes(x = pitchname, fill = pitchname))  + geom_bar() + xlab("Pitch Type") + ylab("Frequency") + ggtitle("Relievers Pitch Type Frequency Resulting in Strikeout/Outs")
+
+### Boxplots for Pitch Types
 # Four-seam FB
 all_reliever_ff <- filter(all_reliever_data, pitchname=="FF")
 boxplot(scale(select(all_reliever_ff, spinrate, relspeed, horzbreak, inducedvertbreak, platelocside, platelocheight)), ylab = "Standardized Values", las = 2, cex.axis = 0.8)
@@ -642,7 +600,7 @@ med_sl_by_pitcher$abs_median_hbreak <- abs(med_sl_by_pitcher$median_hbreak)
 med_sl_by_pitcher$log_abs_median_vbreak <- log(med_sl_by_pitcher$abs_median_vbreak)
 med_sl_by_pitcher$log_abs_median_hbreak <- log(med_sl_by_pitcher$abs_median_hbreak)
 
-## Basic Log Model
+## Basic Log Model (Model 1)
 vb_log_model <- glm(log_abs_median_vbreak ~ median_spin + median_velo + log_abs_median_hbreak, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
@@ -658,7 +616,7 @@ plot(vb_fitted_values_log_model, vb_residuals_log_model,
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
-## Interaction Model 1
+## Interaction Model 1 (Model 2)
 vb_log_model_int <- glm(log_abs_median_vbreak ~ median_spin + median_velo + log_abs_median_hbreak + median_spin*median_velo, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
@@ -674,7 +632,7 @@ plot(vb_fitted_values_log_model_int, vb_residuals_log_model_int,
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
-## Interaction Model 2
+## Interaction Model 2 (Model 3)
 
 vb_log_model_int_2 <- glm(log_abs_median_vbreak ~ median_spin + median_velo + log_abs_median_hbreak + median_spin*median_velo  + median_velo*log_abs_median_hbreak, 
                       family = gaussian(link = "identity"), 
@@ -701,7 +659,7 @@ summary.lm(vb_log_model_int_2) # going with model 3
 ### Horizontal Break models and residuals
 
 ```{r}
-## Basic Log Model
+## Basic Log Model (Model 1)
 hb_log_model <- glm(log_abs_median_hbreak ~ median_spin + median_velo, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
@@ -717,7 +675,7 @@ plot(hb_fitted_values_log_model, hb_residuals_log_model,
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
-## Interaction Model 1
+## Interaction Model 1 (Model 2)
 hb_log_model_int <- glm(log_abs_median_hbreak ~ median_spin + median_velo + log_abs_median_vbreak + median_spin*median_velo, 
                       family = gaussian(link = "identity"), 
                        data = med_sl_by_pitcher)
@@ -733,7 +691,7 @@ plot(hb_fitted_values_log_model_int, hb_residuals_log_model_int,
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
-## Interaction Model 2
+## Interaction Model 2 (Model 3)
 
 hb_log_model_int_2 <- glm(log_abs_median_hbreak ~ median_spin + median_velo + log_abs_median_vbreak + median_spin*median_velo  + median_velo*log_abs_median_vbreak, 
                       family = gaussian(link = "identity"), 
@@ -750,12 +708,10 @@ plot(hb_fitted_values_log_model_int_2, hb_residuals_log_model_int_2,
      pch = 16, col = "blue")
 abline(h = 0, col = "red", lwd = 2)
 
-summary.lm(hb_log_model)
+summary.lm(hb_log_model) # going with model 1 (additive)
 
 med_sl_by_pitcher <- med_sl_by_pitcher |> 
    mutate(logabs_hbreak_resid = residuals(hb_log_model))
-
-# going with model 1 (additive)
 ```
 
 ### Histograms
@@ -764,7 +720,7 @@ Compare Relievers to Closers per pitch metric
 
 ```{r}
 med_sl_by_pitcher_scaled <- med_sl_by_pitcher |>
-  select(median_spin, median_velo, median_hbreak, median_vbreak, logabs_hbreak_resid, logabs_vbreak_resid) |> 
+  select(median_spin, median_velo, median_hbreak, median_vbreak, logabs_hbreak_resid, logabs_vbreak_resid) |>
   scale() |>
   as.data.frame()
 
@@ -785,7 +741,6 @@ ggplot(med_sl_by_pitcher_scaled, aes(x = Value)) +
 Train on Closer and Apply to Reliever Subset
 
 ```{r}
-
 #Make model to predict rv_100 for closers
 med_sl_by_closer_new <- dplyr::inner_join(med_sl_by_closer, 
                                    med_sl_by_pitcher %>% select(name, logabs_hbreak_resid, logabs_vbreak_resid), 
